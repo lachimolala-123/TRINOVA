@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRINOVA — Tukar Minyak Jelantah Jadi Poin & Sabun RW Tembalang</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .smooth-transition {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.96) translateY(8px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop {
+            animation: popIn 0.22s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Notifikasi Ramah Besar di Pojok Bawah -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- ========================================================= -->
+    <!-- 1. HEADER SEDERHANA & JELAS                               -->
+    <!-- ========================================================= -->
+    <header class="sticky top-0 z-40 bg-white border-b-2 border-blue-100 shadow-xs">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <!-- Logo & Keterangan Singkat -->
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-[#1D4ED8] flex items-center justify-center text-white shadow-sm shrink-0">
+                        <i data-lucide="droplets" class="w-7 h-7 text-blue-100"></i>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-display font-extrabold text-2xl tracking-tight text-[#1D4ED8]">TRINOVA</span>
+                            <span class="text-xs sm:text-sm font-bold px-3 py-0.5 rounded-full bg-[#DBEAFE] text-[#1D4ED8]">
+                                RW Tembalang
+                            </span>
+                        </div>
+                        <p class="text-sm sm:text-base font-medium text-slate-600 mt-0.5">
+                            Tukar Minyak Jelantah Jadi Poin &amp; Sabun Cuci Piring
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pemilih Peran 2 Tombol Besar -->
+                <div class="grid grid-cols-2 sm:flex items-center gap-2.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                    <button type="button" id="btn-role-warga" onclick="switchRole('warga')"
+                        class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm sm:text-base font-bold smooth-transition bg-[#1D4ED8] text-white shadow-sm cursor-pointer">
+                        <span> Tampilan Warga</span>
+                    </button>
+                    <button type="button" id="btn-role-admin" onclick="switchRole('admin')"
+                        class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm sm:text-base font-bold smooth-transition text-slate-700 hover:bg-white/80 cursor-pointer">
+                        <span> Tampilan Petugas RT/RW</span>
+                        <span id="admin-pending-badge" class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-extrabold text-white bg-amber-600 rounded-full">2</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================================= -->
+    <!-- 2. BANNER STATUS KOMUNITAS RW TEMBALANG                   -->
+    <!-- ========================================================= -->
+    <section class="bg-gradient-to-r from-[#1D4ED8] to-[#2563EB] text-white border-b border-blue-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-blue-50 text-xs sm:text-sm font-bold">
+                        <span> Target Bersama RW Tembalang: 25 Liter / Bulan (75 Liter dalam 3 Bulan)</span>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-extrabold text-white">
+                        Minyak Terkumpul Saat Ini:
+                        <span id="global-rw-liters" class="underline decoration-blue-200 decoration-2">54,0</span> Liter dari Target 75,0 Liter
+                    </h1>
+                    <p class="text-sm text-blue-100">
+                        Aturan Poin: <strong>1 Liter Minyak = 10 Poin</strong> &bull; <strong>50 Poin = Gratis 1 Botol Sabun Cuci Piring</strong>
+                    </p>
+                </div>
+
+                <div class="w-full lg:w-80 bg-blue-950/30 p-3.5 rounded-2xl border border-white/15">
+                    <div class="flex justify-between text-sm font-bold mb-1.5">
+                        <span>Progres 3 Bulan</span>
+                        <span id="global-rw-pct" class="text-white">72% Tercapai</span>
+                    </div>
+                    <div class="w-full h-4 bg-blue-950/50 rounded-full overflow-hidden p-0.5">
+                        <div id="global-rw-bar" class="h-full bg-white rounded-full transition-all duration-500" style="width: 72%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- KONTEN UTAMA                                              -->
+    <!-- ========================================================= -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+        <!-- ===================================================== -->
+        <!-- 3. TAMPILAN WARGA (SANGAT SEDERHANA & STEP-BY-STEP)   -->
+        <!-- ===================================================== -->
+        <div id="view-warga" class="space-y-6">
+
+            <!-- Kotak Pilihan Nama Warga -->
+            <div class="bg-white rounded-2xl border-2 border-blue-100 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div id="warga-avatar" class="w-12 h-12 rounded-2xl bg-[#DBEAFE] text-[#1D4ED8] flex items-center justify-center font-display font-extrabold text-lg shrink-0">
+                        SA
+                    </div>
+                    <div class="w-full">
+                        <label for="select-resident" class="block text-xs font-bold uppercase tracking-wider text-[#1D4ED8] mb-1">
+                            Pilih Nama Anda (Warga RW Tembalang):
+                        </label>
+                        <select id="select-resident" onchange="handleResidentChange()"
+                            class="w-full sm:w-auto font-display font-bold text-base sm:text-lg text-slate-900 bg-slate-50 border-2 border-blue-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-[#1D4ED8] cursor-pointer">
+                            <option value="res-1">Ibu Siti Aminah - RT 01</option>
+                            <option value="res-2">Ibu Rina Kusuma - RT 02</option>
+                            <option value="res-3">Bapak Hendra Wijaya - RT 03</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-slate-700">
+                    <span class="font-bold text-[#1D4ED8]">Info Mudah:</span> Setiap 1 Liter minyak jelantah bernilai <strong>10 Poin</strong>.
+                </div>
+            </div>
+
+            <!-- KARTU BESAR POIN SAYA & TUKAR SABUN -->
+            <section class="bg-white rounded-3xl border-2 border-blue-200 p-6 sm:p-7 shadow-sm">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <!-- Jumlah Poin & Progres -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <div class="flex items-center gap-2.5">
+                            <span class="px-3 py-1 rounded-full bg-[#DBEAFE] text-[#1D4ED8] text-xs sm:text-sm font-extrabold">
+                                SALDO POIN SAYA
+                            </span>
+                            <span id="warga-liters-info" class="text-sm font-medium text-slate-600">
+                                (Total setor sah: 4,0 Liter)
+                            </span>
+                        </div>
+
+                        <div class="flex items-baseline gap-3">
+                            <span id="warga-points-val" class="text-5xl sm:text-6xl font-display font-extrabold text-[#1D4ED8]">40</span>
+                            <span class="text-xl sm:text-2xl font-bold text-slate-500">/ 50 Poin</span>
+                        </div>
+
+                        <div>
+                            <div class="flex flex-wrap justify-between text-sm sm:text-base font-bold mb-2 gap-1">
+                                <span class="text-slate-700">Syarat Hadiah 1 Botol Sabun (450ml)</span>
+                                <span id="warga-soap-status-text" class="text-[#1D4ED8]">Kurang 10 poin lagi untuk dapat sabun</span>
+                            </div>
+                            <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden border border-slate-200 p-0.5">
+                                <div id="warga-soap-bar" class="h-full bg-[#2563EB] rounded-full transition-all duration-500" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kotak Penukaran Sabun -->
+                    <div class="lg:col-span-5 bg-slate-50 rounded-2xl border-2 border-blue-100 p-5 flex flex-col justify-between gap-4">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Hadiah Langsung Warga</div>
+                            <h2 class="text-lg font-extrabold text-slate-900 mt-0.5">1 Botol Sabun Cuci Piring (450ml)</h2>
+                            <p class="text-sm text-slate-600 mt-1">
+                                Stok tersedia di Posko RW: <strong id="warga-soap-stock-text" class="text-[#1D4ED8]">24 botol</strong>
+                            </p>
+                        </div>
+
+                        <button type="button" id="btn-redeem-soap" onclick="handleRedeemSoap()"
+                            class="w-full py-4 px-5 rounded-2xl text-base font-extrabold smooth-transition flex items-center justify-center gap-2 bg-slate-200 text-slate-500 cursor-not-allowed">
+                            <span>🎁 TUKAR 50 POIN JADI SABUN</span>
+                        </button>
+                        <p id="warga-soap-helper" class="text-xs sm:text-sm font-medium text-center text-slate-600">
+                            Kurang 10 poin lagi untuk dapat sabun. Setor 1 Liter minyak untuk mencukupi!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3 TOMBOL TAB MENU UTAMA BERUKURAN BESAR -->
+            <nav aria-label="Menu Utama Warga" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button type="button" id="tab-main-setor" onclick="switchWargaMainTab('setor')"
+                    class="p-4 sm:p-5 rounded-2xl border-2 text-left smooth-transition bg-[#1D4ED8] border-[#1D4ED8] text-white shadow-sm cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">🛢️</span>
+                        <div>
+                            <div class="font-display font-extrabold text-base sm:text-lg">1. Setor Minyak</div>
+                            <div class="text-xs sm:text-sm text-blue-100">Dapatkan kode antrean posko</div>
+                        </div>
+                    </div>
+                </button>
+
+                <button type="button" id="tab-main-lilin" onclick="switchWargaMainTab('lilin')"
+                    class="p-4 sm:p-5 rounded-2xl border-2 text-left smooth-transition bg-white border-slate-200 hover:border-blue-300 text-slate-800 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-[#DBEAFE] text-[#1D4ED8] flex items-center justify-center text-xl shrink-0">🕯️</span>
+                        <div>
+                            <div class="font-display font-extrabold text-base sm:text-lg">2. Beli Lilin + Gratis Pelatihan</div>
+                            <div class="text-xs sm:text-sm text-slate-500">Otomatis dapat tiket pelatihan</div>
+                        </div>
+                    </div>
+                </button>
+
+                <button type="button" id="tab-main-riwayat" onclick="switchWargaMainTab('riwayat')"
+                    class="p-4 sm:p-5 rounded-2xl border-2 text-left smooth-transition bg-white border-slate-200 hover:border-blue-300 text-slate-800 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-[#DBEAFE] text-[#1D4ED8] flex items-center justify-center text-xl shrink-0">🎟️</span>
+                        <div>
+                            <div class="font-display font-extrabold text-base sm:text-lg">3. Riwayat &amp; Tiket Saya</div>
+                            <div id="tab-riwayat-subtitle" class="text-xs sm:text-sm text-slate-500">Lihat status poin, voucher &amp; tiket</div>
+                        </div>
+                    </div>
+                </button>
+            </nav>
+
+            <!-- ================================================= -->
+            <!-- ISI TAB 1: SETOR MINYAK JELANTAH                  -->
+            <!-- ================================================= -->
+            <section id="panel-warga-setor" class="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-[#DBEAFE] text-[#1D4ED8] text-xs font-extrabold">LANGKAH 1 — SETOR MINYAK</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">Cara Mudah Setor Minyak Jelantah</h2>
+                </div>
+
+                <!-- Panduan 3 Langkah Super Singkat -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+                        <span class="w-8 h-8 rounded-full bg-[#1D4ED8] text-white font-extrabold flex items-center justify-center shrink-0">1</span>
+                        <p class="text-sm sm:text-base font-medium text-slate-700">
+                            <strong>Tuang minyak jelantah</strong> yang sudah dingin ke dalam botol atau jeriken bersih.
+                        </p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+                        <span class="w-8 h-8 rounded-full bg-[#1D4ED8] text-white font-extrabold flex items-center justify-center shrink-0">2</span>
+                        <p class="text-sm sm:text-base font-medium text-slate-700">
+                            <strong>Pilih posko &amp; jumlah liter</strong> pada tombol di bawah untuk mendapatkan kode setor.
+                        </p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+                        <span class="w-8 h-8 rounded-full bg-[#1D4ED8] text-white font-extrabold flex items-center justify-center shrink-0">3</span>
+                        <p class="text-sm sm:text-base font-medium text-slate-700">
+                            <strong>Bawa minyak ke posko</strong> &amp; tunjukkan kode ke petugas RT/RW agar poin langsung masuk.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Form Simpel Setor Minyak -->
+                <form onsubmit="handleCreateDeposit(event)" class="space-y-6 pt-2">
+                    <div>
+                        <label for="deposit-dropoff" class="block text-base font-bold text-slate-900 mb-2">
+                            Pilih Posko Tujuan Pengumpulan:
+                        </label>
+                        <select id="deposit-dropoff"
+                            class="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-300 text-base font-semibold text-slate-900 bg-white focus:outline-none focus:border-[#1D4ED8] cursor-pointer">
+                            <option value="Posko Balai RW Tembalang">Posko Balai RW Tembalang</option>
+                            <option value="Posko RT 01">Posko RT 01</option>
+                            <option value="Posko RT 02">Posko RT 02</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-base font-bold text-slate-900 mb-2">
+                            Pilih Ukuran Botol / Jumlah Liter Minyak:
+                        </label>
+
+                        <!-- Tombol Pilihan Cepat Ukuran Botol -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                            <button type="button" onclick="quickSetLiters(0.5)" id="chip-liters-0.5"
+                                class="liter-chip p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-[#2563EB] text-center smooth-transition cursor-pointer">
+                                <div class="font-display font-extrabold text-base sm:text-lg text-slate-900">0.5 Liter</div>
+                                <div class="text-sm font-bold text-[#1D4ED8]">(5 Poin)</div>
+                            </button>
+                            <button type="button" onclick="quickSetLiters(1)" id="chip-liters-1"
+                                class="liter-chip p-3.5 rounded-2xl border-2 border-[#1D4ED8] bg-[#DBEAFE] text-center smooth-transition cursor-pointer">
+                                <div class="font-display font-extrabold text-base sm:text-lg text-[#1D4ED8]">1 Liter</div>
+                                <div class="text-sm font-bold text-[#1D4ED8]">(10 Poin)</div>
+                            </button>
+                            <button type="button" onclick="quickSetLiters(2)" id="chip-liters-2"
+                                class="liter-chip p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-[#2563EB] text-center smooth-transition cursor-pointer">
+                                <div class="font-display font-extrabold text-base sm:text-lg text-slate-900">2 Liter</div>
+                                <div class="text-sm font-bold text-[#1D4ED8]">(20 Poin)</div>
+                            </button>
+                            <button type="button" onclick="quickSetLiters(5)" id="chip-liters-5"
+                                class="liter-chip p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-[#2563EB] text-center smooth-transition cursor-pointer">
+                                <div class="font-display font-extrabold text-base sm:text-lg text-slate-900">5 Liter</div>
+                                <div class="text-sm font-bold text-[#1D4ED8]">(50 Poin)</div>
+                            </button>
+                        </div>
+
+                        <!-- Input Angka Manual + Perkiraan Poin -->
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <label for="deposit-liters" class="text-sm sm:text-base font-semibold text-slate-700 shrink-0">
+                                Atau ketik jumlah liter:
+                            </label>
+                            <div class="relative flex-1">
+                                <input type="number" id="deposit-liters" step="0.5" min="0.5" max="50" value="1" required
+                                    oninput="updateDepositPreview()"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 text-lg font-extrabold text-slate-900 bg-white focus:outline-none focus:border-[#1D4ED8]">
+                                <span class="absolute right-4 top-3.5 text-base font-bold text-slate-400">Liter</span>
+                            </div>
+                            <div class="px-4 py-3 rounded-xl bg-[#DBEAFE] text-[#1D4ED8] font-extrabold text-base text-center shrink-0">
+                                Akan mendapat: +<span id="deposit-points-preview">10</span> Poin
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-4 px-6 rounded-2xl bg-[#1D4ED8] hover:bg-[#2563EB] active:scale-[0.99] text-white font-display font-extrabold text-base sm:text-lg shadow-md smooth-transition cursor-pointer">
+                        KIRIM &amp; DAPATKAN KODE SETOR
+                    </button>
+                </form>
+
+                <!-- KOTAK BESAR BIRU-PUTIH KODE ANTREAN (TAMPIL OTOMATIS SETELAH KLIK) -->
+                <div id="latest-deposit-ticket-box" class="hidden rounded-3xl border-4 border-[#1D4ED8] bg-white p-6 sm:p-8 shadow-md animate-pop">
+                    <div class="bg-[#1D4ED8] text-white rounded-2xl p-5 text-center">
+                        <span class="text-xs sm:text-sm font-bold uppercase tracking-widest text-blue-100">KODE ANTREAN SETOR MINYAK ANDA</span>
+                        <div id="latest-deposit-code" class="text-4xl sm:text-6xl font-mono font-extrabold tracking-wider my-2">
+                            TRN-812
+                        </div>
+                        <p class="text-base sm:text-lg font-bold text-white mt-2">
+                            Tunjukkan kode ini ke Petugas RT/RW saat menyerahkan minyak
+                        </p>
+                    </div>
+
+                    <div class="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div id="latest-deposit-summary" class="text-sm sm:text-base text-slate-700 space-y-1">
+                            <!-- Diisi dinamis -->
+                        </div>
+                        <div class="flex flex-wrap gap-2.5">
+                            <button type="button" onclick="copyTextValue(document.getElementById('latest-deposit-code').textContent)"
+                                class="px-4 py-3 rounded-xl border-2 border-[#1D4ED8] text-[#1D4ED8] font-bold text-sm hover:bg-blue-50 cursor-pointer">
+                                Salin Kode
+                            </button>
+                            <button type="button" onclick="switchRole('admin')"
+                                class="px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm cursor-pointer">
+                                Simulasi Verifikasi Petugas &rarr;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================= -->
+            <!-- ISI TAB 2: BELI LILIN + GRATIS PELATIHAN          -->
+            <!-- ================================================= -->
+            <section id="panel-warga-lilin" class="hidden bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+                <div class="bg-[#DBEAFE] border-2 border-blue-300 rounded-2xl p-5">
+                    <span class="px-3 py-1 rounded-full bg-[#1D4ED8] text-white text-xs font-extrabold">LANGKAH 2 — PRODUK KREATIF WARGA</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">Lilin Aromaterapi dari Minyak Jelantah</h2>
+                    <p class="text-base font-semibold text-[#1D4ED8] mt-1">
+                        🎓 Setiap pembelian 1 lilin SUDAH TERMASUK Tiket Gratis Pelatihan Cara Membuat Lilin dari Minyak Jelantah!
+                    </p>
+                </div>
+
+                <div id="candle-products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Diisi dinamis oleh JS -->
+                </div>
+            </section>
+
+            <!-- ================================================= -->
+            <!-- ISI TAB 3: RIWAYAT & TIKET SAYA                   -->
+            <!-- ================================================= -->
+            <section id="panel-warga-riwayat" class="hidden bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-xs space-y-8">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-[#DBEAFE] text-[#1D4ED8] text-xs font-extrabold">LANGKAH 3 — CATATAN &amp; KARTU SAYA</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">Riwayat Setoran, Voucher Sabun &amp; Tiket Pelatihan</h2>
+                    <p class="text-sm sm:text-base text-slate-600 mt-1">Klik kartu mana saja untuk melihat kode besar yang ditunjukkan kepada petugas.</p>
+                </div>
+
+                <!-- Sub-bagian A: Voucher Sabun Siap Diambil -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                        <span>🎁 Voucher Sabun Cuci Piring Saya</span>
+                    </h3>
+                    <div id="list-warga-vouchers" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </div>
+
+                <!-- Sub-bagian B: Tiket Pelatihan Lilin -->
+                <div class="space-y-3 pt-4 border-t border-slate-200">
+                    <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                        <span>🎓 Tiket Pelatihan Membuat Lilin Aromaterapi</span>
+                    </h3>
+                    <div id="list-warga-tickets" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </div>
+
+                <!-- Sub-bagian C: Riwayat Setoran Minyak -->
+                <div class="space-y-3 pt-4 border-t border-slate-200">
+                    <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                        <span>🛢️ Riwayat Setoran Minyak Jelantah</span>
+                    </h3>
+                    <div id="list-warga-deposits" class="space-y-3">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- 4. TAMPILAN PETUGAS RT/RW (ANTI-KECURANGAN & MUDAH)   -->
+        <!-- ===================================================== -->
+        <div id="view-admin" class="hidden space-y-8">
+
+            <!-- Ringkasan Angka Posko -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border-2 border-amber-200 shadow-xs">
+                    <div class="text-sm font-bold text-amber-800">Menunggu Dicek Petugas</div>
+                    <div id="admin-kpi-pending" class="text-3xl font-display font-extrabold text-slate-900 mt-1">2 Setoran</div>
+                    <p class="text-sm text-slate-600 mt-1">Cocokkan kode warga dengan jeriken minyak</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border-2 border-blue-200 shadow-xs">
+                    <div class="text-sm font-bold text-[#1D4ED8]">Total Minyak Sah RW</div>
+                    <div id="admin-kpi-liters" class="text-3xl font-display font-extrabold text-[#1D4ED8] mt-1">54,0 Liter</div>
+                    <p id="admin-kpi-points" class="text-sm text-slate-600 mt-1">540 Poin warga telah dicairkan</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border-2 border-slate-200 shadow-xs">
+                    <div class="text-sm font-bold text-slate-700">Stok Sabun di Posko RW</div>
+                    <div class="flex items-center justify-between mt-1">
+                        <span id="admin-kpi-soap" class="text-3xl font-display font-extrabold text-slate-900">24 Botol</span>
+                        <button type="button" onclick="handleRestockSoap()"
+                            class="px-3 py-1.5 rounded-xl bg-[#DBEAFE] hover:bg-blue-200 text-[#1D4ED8] text-sm font-extrabold cursor-pointer">
+                            + Tambah 10
+                        </button>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-1">Untuk penukaran 50 poin warga</p>
+                </div>
+            </div>
+
+            <!-- BAGIAN A: ANTREAN SETORAN MINYAK WARGA -->
+            <section class="bg-white rounded-3xl border-2 border-blue-200 p-6 sm:p-8 shadow-xs space-y-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                    <div>
+                        <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold">
+                            🛡️ KONTROL ANTI-KECURANGAN POSKO
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
+                            Antrean Setoran Minyak Warga (Belum Diverifikasi)
+                        </h2>
+                        <p class="text-sm sm:text-base text-slate-600 mt-1">
+                            Cocokkan <strong>Kode di HP Warga</strong> dengan jeriken minyak yang dibawa, lalu tekan tombol terima.
+                        </p>
+                    </div>
+
+                    <div class="w-full md:w-72">
+                        <label for="admin-search-code" class="sr-only">Cari kode antrean</label>
+                        <input type="text" id="admin-search-code" oninput="renderAdminDashboard()"
+                            placeholder="Cari kode (contoh: TRN-812)..."
+                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 text-base font-bold text-slate-900 focus:outline-none focus:border-[#1D4ED8]">
+                    </div>
+                </div>
+
+                <div id="admin-pending-queue" class="space-y-4">
+                    <!-- Diisi dinamis -->
+                </div>
+            </section>
+
+            <!-- BAGIAN B: DAFTAR PENUKARAN HADIAH SABUN WARGA -->
+            <section class="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">🎁 Daftar Penukaran Hadiah Sabun Warga</h2>
+                    <p class="text-sm sm:text-base text-slate-600">
+                        Cocokkan kode voucher sabun warga, serahkan 1 botol sabun cuci piring, lalu tandai sudah diserahkan.
+                    </p>
+                </div>
+
+                <div id="admin-soap-vouchers-list" class="space-y-3">
+                    <!-- Diisi dinamis -->
+                </div>
+            </section>
+
+            <!-- BAGIAN C: DAFTAR PESERTA PELATIHAN LILIN AROMATERAPI -->
+            <section class="bg-white rounded-3xl border-2 border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">🎓 Daftar Peserta Pelatihan Membuat Lilin Aromaterapi</h2>
+                    <p class="text-sm sm:text-base text-slate-600">
+                        Warga yang membeli lilin aromaterapi otomatis terdaftar sebagai peserta pelatihan gratis.
+                    </p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b-2 border-slate-200 bg-slate-50 text-xs sm:text-sm font-extrabold uppercase text-slate-700">
+                                <th class="py-3.5 px-4">Kode Tiket</th>
+                                <th class="py-3.5 px-4">Nama Warga</th>
+                                <th class="py-3.5 px-4">No. HP / WA</th>
+                                <th class="py-3.5 px-4">Lilin yang Dibeli</th>
+                                <th class="py-3.5 px-4">Jadwal Pelatihan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-seminar-table" class="divide-y divide-slate-200 text-sm sm:text-base">
+                            <!-- Diisi dinamis -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- FOOTER + TOMBOL RESET DATA CONTOH                         -->
+    <!-- ========================================================= -->
+    <footer class="bg-white border-t-2 border-slate-200 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
+            <div>
+                <strong class="text-[#1D4ED8] font-extrabold">TRINOVA RW Tembalang</strong> &mdash; Program Daur Ulang Minyak Jelantah Warga
+            </div>
+            <button type="button" onclick="resetDemoData()"
+                class="px-4 py-2 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs sm:text-sm font-semibold text-slate-700 cursor-pointer">
+                🔄 Reset Data Contoh
+            </button>
+        </div>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- POPUP 1: BELI LILIN & AMBIL TIKET PELATIHAN               -->
+    <!-- ========================================================= -->
+    <div id="modal-checkout" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border-2 border-blue-200 animate-pop">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-[#DBEAFE] text-[#1D4ED8] text-xs font-extrabold">
+                        SUDAH TERMASUK TIKET PELATIHAN GRATIS
+                    </span>
+                    <h3 id="checkout-product-name" class="text-xl font-extrabold text-slate-900 mt-2">Sereh Wangi (Citronella)</h3>
+                    <p id="checkout-product-price" class="text-base font-extrabold text-[#1D4ED8] mt-0.5">Rp 25.000</p>
+                </div>
+                <button type="button" onclick="closeModal('modal-checkout')" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 cursor-pointer">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleConfirmCheckout(event)" class="mt-5 space-y-4">
+                <div>
+                    <label for="checkout-name" class="block text-sm font-bold text-slate-800 mb-1">Nama Peserta Pelatihan:</label>
+                    <input type="text" id="checkout-name" required
+                        class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 text-base font-semibold text-slate-900 focus:outline-none focus:border-[#1D4ED8]">
+                </div>
+
+                <div>
+                    <label for="checkout-wa" class="block text-sm font-bold text-slate-800 mb-1">Nomor HP / WhatsApp:</label>
+                    <input type="tel" id="checkout-wa" value="0812-3456-7890" required
+                        class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 text-base font-semibold text-slate-900 focus:outline-none focus:border-[#1D4ED8]">
+                </div>
+
+                <div>
+                    <label for="checkout-session" class="block text-sm font-bold text-slate-800 mb-1">Pilih Jadwal Pelatihan Gratis:</label>
+                    <select id="checkout-session"
+                        class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 text-base font-semibold text-slate-900 bg-white focus:outline-none focus:border-[#1D4ED8] cursor-pointer">
+                        <option value="Sabtu, 5 Des 2026 (Jam 09.00 WIB) - Balai RW Tembalang">Sabtu, 5 Des 2026 (Jam 09.00 WIB) - Balai RW Tembalang</option>
+                        <option value="Minggu, 13 Des 2026 (Jam 13.00 WIB) - Balai RW Tembalang">Minggu, 13 Des 2026 (Jam 13.00 WIB) - Balai RW Tembalang</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button type="button" onclick="closeModal('modal-checkout')"
+                        class="py-3.5 px-4 rounded-xl border-2 border-slate-300 text-slate-700 font-bold text-base hover:bg-slate-50 cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="py-3.5 px-4 rounded-xl bg-[#1D4ED8] hover:bg-[#2563EB] text-white font-extrabold text-base shadow-sm cursor-pointer">
+                        Konfirmasi &amp; Ambil Tiket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- POPUP 2: KARTU VOUCHER SABUN / TIKET PELATIHAN BESAR      -->
+    <!-- ========================================================= -->
+    <div id="modal-ticket-card" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border-4 border-[#1D4ED8] text-center animate-pop">
+            <span id="modal-card-badge" class="inline-block px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#DBEAFE] text-[#1D4ED8]">
+                VOUCHER SABUN CUCI PIRING
+            </span>
+            <h3 id="modal-card-title" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
+                1 Botol Sabun Cuci Piring (450ml)
+            </h3>
+            <p id="modal-card-subtitle" class="text-sm sm:text-base text-slate-600 mt-1">
+                Tunjukkan kode di bawah ini kepada Petugas RT/RW di posko.
+            </p>
+
+            <div class="my-5 p-5 rounded-2xl bg-[#1D4ED8] text-white">
+                <div class="text-xs font-bold uppercase tracking-widest text-blue-100">KODE ANDA</div>
+                <div id="modal-card-code" class="text-4xl sm:text-5xl font-mono font-extrabold tracking-wider my-2">
+                    SBN-2041
+                </div>
+                <button type="button" onclick="copyTextValue(document.getElementById('modal-card-code').textContent)"
+                    class="mt-1 px-4 py-1.5 rounded-xl bg-white text-[#1D4ED8] text-xs sm:text-sm font-extrabold hover:bg-blue-50 cursor-pointer">
+                    Salin Kode
+                </button>
+            </div>
+
+            <div id="modal-card-details" class="text-left text-sm sm:text-base text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-1 mb-5">
+                <!-- Diisi dinamis -->
+            </div>
+
+            <button type="button" onclick="closeModal('modal-ticket-card')"
+                class="w-full py-3.5 px-5 rounded-2xl bg-[#1D4ED8] hover:bg-[#2563EB] text-white font-extrabold text-base cursor-pointer">
+                Tutup Kartu
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- LOGIKA APLIKASI INTERAKTIF (LOCALSTORAGE)                 -->
+    <!-- ========================================================= -->
+    <script>
+        const STORAGE_KEY = 'TRINOVA_BLUE_SIMPLE_V1';
+
+        const DEFAULT_STATE = {
+            currentRole: 'warga',
+            wargaMainTab: 'setor',
+            activeResidentId: 'res-1',
+            rwTargetLiters: 75.0,
+            soapStock: 24,
+            latestDepositCode: null,
+            residents: [
+                { id: 'res-1', name: 'Ibu Siti Aminah', rt: 'RT 01', initials: 'SA', points: 40 },
+                { id: 'res-2', name: 'Ibu Rina Kusuma', rt: 'RT 02', initials: 'RK', points: 50 },
+                { id: 'res-3', name: 'Bapak Hendra Wijaya', rt: 'RT 03', initials: 'HW', points: 20 }
+            ],
+            deposits: [
+                {
+                    id: 'TRN-812',
+                    residentId: 'res-1',
+                    residentName: 'Ibu Siti Aminah',
+                    rt: 'RT 01',
+                    dropoff: 'Posko Balai RW Tembalang',
+                    liters: 1.0,
+                    points: 10,
+                    status: 'pending',
+                    createdAt: 'Hari ini, 10:15 WIB'
+                },
+                {
+                    id: 'TRN-745',
+                    residentId: 'res-3',
+                    residentName: 'Bapak Hendra Wijaya',
+                    rt: 'RT 03',
+                    dropoff: 'Posko RT 02',
+                    liters: 3.0,
+                    points: 30,
+                    status: 'pending',
+                    createdAt: 'Hari ini, 09:30 WIB'
+                },
+                {
+                    id: 'TRN-601',
+                    residentId: 'res-1',
+                    residentName: 'Ibu Siti Aminah',
+                    rt: 'RT 01',
+                    dropoff: 'Posko Balai RW Tembalang',
+                    liters: 4.0,
+                    points: 40,
+                    status: 'verified',
+                    createdAt: '18 Nov 2026'
+                },
+                {
+                    id: 'TRN-588',
+                    residentId: 'res-2',
+                    residentName: 'Ibu Rina Kusuma',
+                    rt: 'RT 02',
+                    dropoff: 'Posko RT 02',
+                    liters: 25.0,
+                    points: 250,
+                    status: 'verified',
+                    createdAt: '10 Nov 2026'
+                },
+                {
+                    id: 'TRN-520',
+                    residentId: 'res-3',
+                    residentName: 'Bapak Hendra Wijaya',
+                    rt: 'RT 03',
+                    dropoff: 'Posko Balai RW Tembalang',
+                    liters: 25.0,
+                    points: 250,
+                    status: 'verified',
+                    createdAt: '02 Nov 2026'
+                }
+            ],
+            soapVouchers: [
+                {
+                    code: 'SBN-2041',
+                    residentId: 'res-2',
+                    residentName: 'Ibu Rina Kusuma',
+                    rt: 'RT 02',
+                    item: '1 Botol Sabun Cuci Piring (450ml)',
+                    status: 'ready',
+                    createdAt: '20 Nov 2026'
+                }
+            ],
+            seminarTickets: [
+                {
+                    code: 'KLS-509',
+                    residentId: 'res-1',
+                    buyerName: 'Ibu Siti Aminah',
+                    whatsapp: '0812-3456-7890',
+                    productName: 'Sereh Wangi (Citronella)',
+                    price: 25000,
+                    session: 'Sabtu, 5 Des 2026 (Jam 09.00 WIB) - Balai RW Tembalang',
+                    createdAt: '19 Nov 2026'
+                }
+            ]
+        };
+
+        const CANDLE_PRODUCTS = [
+            {
+                id: 'cnd-sereh',
+                name: 'Sereh Wangi (Citronella)',
+                price: 25000,
+                badge: 'Paling Diminati',
+                desc: 'Wangi segar sereh alami yang membantu mengusir nyamuk di rumah. Dibuat dari minyak jelantah warga yang sudah dimurnikan.',
+                emoji: '🌿'
+            },
+            {
+                id: 'cnd-lavender',
+                name: 'Lavender Rileks',
+                price: 28000,
+                badge: 'Aroma Tenang',
+                desc: 'Aroma lembut bunga lavender untuk membantu istirahat malam lebih nyenyak dan ruangan terasa sejuk.',
+                emoji: '💜'
+            },
+            {
+                id: 'cnd-kopi',
+                name: 'Kopi Tembalang',
+                price: 30000,
+                badge: 'Khas Semarang',
+                desc: 'Aroma kopi sangrai hangat yang efektif menghilangkan bau gorengan di dapur dan ruang tamu.',
+                emoji: '☕'
+            }
+        ];
+
+        let state = loadState();
+        let selectedCandleProduct = null;
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+                return JSON.parse(raw);
+            } catch (e) {
+                return JSON.parse(JSON.stringify(DEFAULT_STATE));
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                // Abaikan jika penyimpanan penuh
+            }
+        }
+
+        function resetDemoData() {
+            state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            saveState();
+            renderAll();
+            showToast('Data contoh berhasil dikembalikan ke awal. Silakan coba lagi!');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCandleCatalog();
+            renderAll();
+        });
+
+        function renderAll() {
+            updateRoleUI();
+            updateGlobalTargetBanner();
+            renderWargaDashboard();
+            renderAdminDashboard();
+            lucide.createIcons();
+        }
+
+        // --- 1. PEMILIH PERAN (WARGA vs PETUGAS RT/RW) ---
+        function switchRole(role) {
+            state.currentRole = role;
+            saveState();
+            renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateRoleUI() {
+            const viewWarga = document.getElementById('view-warga');
+            const viewAdmin = document.getElementById('view-admin');
+            const btnWarga = document.getElementById('btn-role-warga');
+            const btnAdmin = document.getElementById('btn-role-admin');
+
+            const pendingCount = state.deposits.filter(d => d.status === 'pending').length;
+            const pendingBadge = document.getElementById('admin-pending-badge');
+            pendingBadge.textContent = pendingCount;
+            pendingBadge.classList.toggle('hidden', pendingCount === 0);
+
+            if (state.currentRole === 'warga') {
+                viewWarga.classList.remove('hidden');
+                viewAdmin.classList.add('hidden');
+                btnWarga.className = 'flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm sm:text-base font-bold smooth-transition bg-[#1D4ED8] text-white shadow-sm cursor-pointer';
+                btnAdmin.className = 'flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm sm:text-base font-bold smooth-transition text-slate-700 hover:bg-white/80 cursor-pointer';
+            } else {
+                viewWarga.classList.add('hidden');
+                viewAdmin.classList.remove('hidden');
+                btnAdmin.className = 'flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm sm:text-base font-bold smooth-transition bg-[#1D4ED8] text-white shadow-sm cursor-pointer';
+                btnWarga.className = 'flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm sm:text-base font-bold smooth-transition text-slate-700 hover:bg-white/80 cursor-pointer';
+            }
+        }
+
+        // --- 2. BANNER STATUS KOMUNITAS RW TEMBALANG ---
+        function getVerifiedLitersTotal() {
+            return state.deposits
+                .filter(d => d.status === 'verified')
+                .reduce((acc, d) => acc + Number(d.liters), 0);
+        }
+
+        function updateGlobalTargetBanner() {
+            const totalLiters = getVerifiedLitersTotal();
+            const pct = Math.min(100, Math.round((totalLiters / state.rwTargetLiters) * 100));
+
+            document.getElementById('global-rw-liters').textContent = totalLiters.toFixed(1).replace('.', ',');
+            document.getElementById('global-rw-pct').textContent = `${pct}% Tercapai`;
+            document.getElementById('global-rw-bar').style.width = `${pct}%`;
+        }
+
+        // --- 3. TAMPILAN WARGA ---
+        function getActiveResident() {
+            return state.residents.find(r => r.id === state.activeResidentId) || state.residents[0];
+        }
+
+        function handleResidentChange() {
+            state.activeResidentId = document.getElementById('select-resident').value;
+            state.latestDepositCode = null;
+            saveState();
+            renderAll();
+            const res = getActiveResident();
+            showToast(`Halo ${res.name}! Akun warga berhasil dipilih.`);
+        }
+
+        function switchWargaMainTab(tabName) {
+            state.wargaMainTab = tabName;
+            saveState();
+            updateWargaMainTabsUI();
+        }
+
+        function updateWargaMainTabsUI() {
+            const tabs = ['setor', 'lilin', 'riwayat'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-main-${t}`);
+                const panel = document.getElementById(`panel-warga-${t}`);
+                const isActive = state.wargaMainTab === t;
+
+                panel.classList.toggle('hidden', !isActive);
+
+                if (isActive) {
+                    btn.className = 'p-4 sm:p-5 rounded-2xl border-2 text-left smooth-transition bg-[#1D4ED8] border-[#1D4ED8] text-white shadow-sm cursor-pointer';
+                    const sub = btn.querySelector('div > div:last-child');
+                    if (sub) sub.className = 'text-xs sm:text-sm text-blue-100';
+                } else {
+                    btn.className = 'p-4 sm:p-5 rounded-2xl border-2 text-left smooth-transition bg-white border-slate-200 hover:border-blue-300 text-slate-800 cursor-pointer';
+                    const sub = btn.querySelector('div > div:last-child');
+                    if (sub) sub.className = 'text-xs sm:text-sm text-slate-500';
+                }
+            });
+        }
+
+        function renderWargaDashboard() {
+            const res = getActiveResident();
+            document.getElementById('select-resident').value = res.id;
+            document.getElementById('warga-avatar').textContent = res.initials;
+
+            const verifiedLiters = state.deposits
+                .filter(d => d.residentId === res.id && d.status === 'verified')
+                .reduce((sum, d) => sum + Number(d.liters), 0);
+
+            const pts = res.points;
+            const pct = Math.min(100, Math.round((pts / 50) * 100));
+            const kurangPoin = Math.max(0, 50 - pts);
+
+            document.getElementById('warga-points-val').textContent = pts;
+            document.getElementById('warga-liters-info').textContent = `(Total setor sah: ${verifiedLiters.toFixed(1).replace('.', ',')} Liter)`;
+            document.getElementById('warga-soap-bar').style.width = `${pct}%`;
+            document.getElementById('warga-soap-stock-text').textContent = `${state.soapStock} botol`;
+
+            const btnRedeem = document.getElementById('btn-redeem-soap');
+            const statusText = document.getElementById('warga-soap-status-text');
+            const helperText = document.getElementById('warga-soap-helper');
+
+            if (pts >= 50 && state.soapStock > 0) {
+                statusText.textContent = 'Poin Sudah Cukup! Siap Ditukar';
+                helperText.textContent = 'Klik tombol biru di atas untuk mengambil Voucher Sabun Anda.';
+                btnRedeem.disabled = false;
+                btnRedeem.className = 'w-full py-4 px-5 rounded-2xl text-base font-extrabold smooth-transition flex items-center justify-center gap-2 bg-[#1D4ED8] hover:bg-[#2563EB] active:scale-[0.99] text-white shadow-md cursor-pointer';
+            } else {
+                statusText.textContent = `Kurang ${kurangPoin} poin lagi untuk dapat sabun`;
+                helperText.textContent = `Kurang ${kurangPoin} poin lagi untuk dapat sabun. Setor ${(kurangPoin / 10).toFixed(1).replace('.', ',')} Liter minyak lagi!`;
+                btnRedeem.disabled = true;
+                btnRedeem.className = 'w-full py-4 px-5 rounded-2xl text-base font-extrabold smooth-transition flex items-center justify-center gap-2 bg-slate-200 text-slate-500 cursor-not-allowed';
+            }
+
+            // Kotak Kode Antrean Terbaru di Tab 1
+            const ticketBox = document.getElementById('latest-deposit-ticket-box');
+            const latestDep = state.latestDepositCode
+                ? state.deposits.find(d => d.id === state.latestDepositCode)
+                : null;
+
+            if (latestDep) {
+                ticketBox.classList.remove('hidden');
+                document.getElementById('latest-deposit-code').textContent = latestDep.id;
+                document.getElementById('latest-deposit-summary').innerHTML = `
+                    <div><strong>Nama Warga:</strong> ${latestDep.residentName} (${latestDep.rt})</div>
+                    <div><strong>Posko Tujuan:</strong> ${latestDep.dropoff}</div>
+                    <div><strong>Jumlah Minyak:</strong> ${Number(latestDep.liters).toFixed(1).replace('.', ',')} Liter (+${latestDep.points} Poin setelah diterima petugas)</div>
+                `;
+            } else {
+                ticketBox.classList.add('hidden');
+            }
+
+            updateWargaMainTabsUI();
+            renderWargaHistoryLists();
+        }
+
+        function quickSetLiters(val) {
+            document.getElementById('deposit-liters').value = val;
+            updateDepositPreview();
+
+            document.querySelectorAll('.liter-chip').forEach(btn => {
+                btn.className = 'liter-chip p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:border-[#2563EB] text-center smooth-transition cursor-pointer';
+                btn.firstElementChild.className = 'font-display font-extrabold text-base sm:text-lg text-slate-900';
+            });
+
+            const activeChip = document.getElementById(`chip-liters-${val}`);
+            if (activeChip) {
+                activeChip.className = 'liter-chip p-3.5 rounded-2xl border-2 border-[#1D4ED8] bg-[#DBEAFE] text-center smooth-transition cursor-pointer';
+                activeChip.firstElementChild.className = 'font-display font-extrabold text-base sm:text-lg text-[#1D4ED8]';
+            }
+        }
+
+        function updateDepositPreview() {
+            const val = parseFloat(document.getElementById('deposit-liters').value) || 0;
+            document.getElementById('deposit-points-preview').textContent = Math.round(val * 10);
+        }
+
+        function handleCreateDeposit(e) {
+            e.preventDefault();
+            const res = getActiveResident();
+            const dropoff = document.getElementById('deposit-dropoff').value;
+            const liters = parseFloat(document.getElementById('deposit-liters').value);
+
+            if (!liters || liters <= 0) {
+                showToast('Silakan masukkan jumlah liter minyak terlebih dahulu.', 'error');
+                return;
+            }
+
+            const code = 'TRN-' + Math.floor(100 + Math.random() * 900);
+            const points = Math.round(liters * 10);
+
+            state.deposits.unshift({
+                id: code,
+                residentId: res.id,
+                residentName: res.name,
+                rt: res.rt,
+                dropoff: dropoff,
+                liters: liters,
+                points: points,
+                status: 'pending',
+                createdAt: 'Baru saja'
+            });
+
+            state.latestDepositCode = code;
+            saveState();
+            renderAll();
+
+            showToast(`Kode setor ${code} berhasil dibuat! Tunjukkan kode ini ke petugas RT/RW.`);
+            document.getElementById('latest-deposit-ticket-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function handleRedeemSoap() {
+            const res = getActiveResident();
+            if (res.points < 50) {
+                showToast('Poin belum cukup. Kumpulkan sampai 50 poin untuk tukar sabun.', 'error');
+                return;
+            }
+            if (state.soapStock <= 0) {
+                showToast('Maaf, stok sabun di posko sedang habis.', 'error');
+                return;
+            }
+
+            res.points -= 50;
+            state.soapStock -= 1;
+
+            const voucherCode = 'SBN-' + Math.floor(1000 + Math.random() * 9000);
+            const voucher = {
+                code: voucherCode,
+                residentId: res.id,
+                residentName: res.name,
+                rt: res.rt,
+                item: '1 Botol Sabun Cuci Piring (450ml)',
+                status: 'ready',
+                createdAt: 'Baru saja'
+            };
+
+            state.soapVouchers.unshift(voucher);
+            saveState();
+            renderAll();
+
+            openTicketCardModal({
+                badge: 'VOUCHER SABUN CUCI PIRING',
+                title: '1 Botol Sabun Cuci Piring (450ml)',
+                subtitle: 'Selamat! Tunjukkan kode penukaran ini kepada Petugas RT/RW untuk mengambil sabun.',
+                code: voucherCode,
+                detailsHtml: `
+                    <div><strong>Nama Penerima:</strong> ${res.name} (${res.rt})</div>
+                    <div><strong>Sisa Poin Anda:</strong> ${res.points} Poin</div>
+                    <div><strong>Lokasi Ambil:</strong> Posko Balai RW Tembalang</div>
+                `
+            });
+        }
+
+        // --- TAB 2: KATALOG LILIN + PELATIHAN ---
+        function renderCandleCatalog() {
+            const grid = document.getElementById('candle-products-grid');
+            grid.innerHTML = CANDLE_PRODUCTS.map(p => `
+                <div class="rounded-2xl border-2 border-slate-200 bg-slate-50/60 hover:bg-white hover:border-[#2563EB] smooth-transition p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="px-3 py-1 rounded-full bg-[#DBEAFE] text-[#1D4ED8] text-xs font-extrabold">${p.badge}</span>
+                            <span class="text-3xl">${p.emoji}</span>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">${p.name}</h3>
+                        <div class="text-2xl font-display font-extrabold text-[#1D4ED8] mt-1">
+                            Rp ${p.price.toLocaleString('id-ID')}
+                        </div>
+                        <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">${p.desc}</p>
+
+                        <div class="mt-4 p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-sm font-bold text-[#1D4ED8]">
+                            ✅ Sudah Termasuk Tiket Gratis Pelatihan Membuat Lilin Jelantah
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="openCheckoutModal('${p.id}')"
+                        class="mt-6 w-full py-3.5 px-4 rounded-xl bg-[#1D4ED8] hover:bg-[#2563EB] active:scale-[0.99] text-white font-extrabold text-sm sm:text-base shadow-xs smooth-transition cursor-pointer">
+                        Beli Lilin &amp; Ambil Tiket Pelatihan
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openCheckoutModal(productId) {
+            const product = CANDLE_PRODUCTS.find(p => p.id === productId);
+            if (!product) return;
+            selectedCandleProduct = product;
+
+            const res = getActiveResident();
+            document.getElementById('checkout-product-name').textContent = product.name;
+            document.getElementById('checkout-product-price').textContent = `Rp ${product.price.toLocaleString('id-ID')} (Lilin + Tiket Gratis Pelatihan)`;
+            document.getElementById('checkout-name').value = res.name;
+
+            const modal = document.getElementById('modal-checkout');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function handleConfirmCheckout(e) {
+            e.preventDefault();
+            if (!selectedCandleProduct) return;
+
+            const res = getActiveResident();
+            const buyerName = document.getElementById('checkout-name').value.trim();
+            const whatsapp = document.getElementById('checkout-wa').value.trim();
+            const session = document.getElementById('checkout-session').value;
+
+            const ticketCode = 'KLS-' + Math.floor(100 + Math.random() * 900);
+
+            state.seminarTickets.unshift({
+                code: ticketCode,
+                residentId: res.id,
+                buyerName: buyerName,
+                whatsapp: whatsapp,
+                productName: selectedCandleProduct.name,
+                price: selectedCandleProduct.price,
+                session: session,
+                createdAt: 'Baru saja'
+            });
+
+            state.wargaMainTab = 'riwayat';
+            saveState();
+            closeModal('modal-checkout');
+            renderAll();
+
+            openTicketCardModal({
+                badge: 'TIKET GRATIS PELATIHAN LILIN',
+                title: `Lilin ${selectedCandleProduct.name} + Tiket Pelatihan`,
+                subtitle: 'Simpan atau tunjukkan kode tiket ini saat datang ke pelatihan pembuatan lilin.',
+                code: ticketCode,
+                detailsHtml: `
+                    <div><strong>Nama Peserta:</strong> ${buyerName}</div>
+                    <div><strong>No. HP / WA:</strong> ${whatsapp}</div>
+                    <div><strong>Jadwal Pelatihan:</strong> ${session}</div>
+                `
+            });
+        }
+
+        // --- TAB 3: RIWAYAT & TIKET SAYA ---
+        function renderWargaHistoryLists() {
+            const res = getActiveResident();
+            const myVouchers = state.soapVouchers.filter(v => v.residentId === res.id);
+            const myTickets = state.seminarTickets.filter(t => t.residentId === res.id);
+            const myDeposits = state.deposits.filter(d => d.residentId === res.id);
+
+            // 1. Voucher Sabun
+            const voucherBox = document.getElementById('list-warga-vouchers');
+            if (myVouchers.length === 0) {
+                voucherBox.innerHTML = `<div class="col-span-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm sm:text-base text-slate-600">Belum ada voucher sabun. Kumpulkan 50 poin untuk menukar 1 botol sabun gratis!</div>`;
+            } else {
+                voucherBox.innerHTML = myVouchers.map(v => `
+                    <div onclick="viewSoapVoucher('${v.code}')" class="p-5 rounded-2xl border-2 border-[#1D4ED8] bg-blue-50/50 hover:bg-blue-50 cursor-pointer flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-xs font-extrabold text-[#1D4ED8]">KODE VOUCHER SABUN</div>
+                            <div class="text-2xl font-mono font-extrabold text-slate-900 my-0.5">${v.code}</div>
+                            <div class="text-sm font-semibold text-slate-700">${v.item}</div>
+                        </div>
+                        <span class="px-3 py-1.5 rounded-xl text-xs font-extrabold ${v.status === 'claimed' ? 'bg-slate-200 text-slate-700' : 'bg-[#1D4ED8] text-white'}">
+                            ${v.status === 'claimed' ? 'Sudah Diambil' : 'Siap Diambil'}
+                        </span>
+                    </div>
+                `).join('');
+            }
+
+            // 2. Tiket Pelatihan
+            const ticketBox = document.getElementById('list-warga-tickets');
+            if (myTickets.length === 0) {
+                ticketBox.innerHTML = `<div class="col-span-full p-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm sm:text-base text-slate-600">Belum ada tiket pelatihan. Beli lilin di menu nomor 2 untuk mendapat tiket gratis!</div>`;
+            } else {
+                ticketBox.innerHTML = myTickets.map(t => `
+                    <div onclick="viewTrainingTicket('${t.code}')" class="p-5 rounded-2xl border-2 border-blue-300 bg-white hover:border-[#1D4ED8] cursor-pointer flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-xs font-extrabold text-[#1D4ED8]">TIKET PELATIHAN LILIN</div>
+                            <div class="text-2xl font-mono font-extrabold text-slate-900 my-0.5">${t.code}</div>
+                            <div class="text-sm font-bold text-slate-800">Lilin ${t.productName}</div>
+                            <div class="text-xs sm:text-sm text-slate-600 mt-0.5">${t.session}</div>
+                        </div>
+                        <span class="px-3 py-1.5 rounded-xl bg-[#DBEAFE] text-[#1D4ED8] text-xs font-extrabold shrink-0">
+                            Lihat Tiket
+                        </span>
+                    </div>
+                `).join('');
+            }
+
+            // 3. Riwayat Setoran Minyak
+            const depBox = document.getElementById('list-warga-deposits');
+            if (myDeposits.length === 0) {
+                depBox.innerHTML = `<div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm sm:text-base text-slate-600">Belum ada riwayat setoran minyak jelantah.</div>`;
+            } else {
+                depBox.innerHTML = myDeposits.map(d => {
+                    const badge = d.status === 'verified'
+                        ? `<span class="px-3.5 py-1.5 rounded-xl bg-[#DBEAFE] text-[#1D4ED8] text-xs sm:text-sm font-extrabold">✅ Sudah Masuk Poin (+${d.points} Poin)</span>`
+                        : d.status === 'rejected'
+                            ? `<span class="px-3.5 py-1.5 rounded-xl bg-red-100 text-red-700 text-xs sm:text-sm font-extrabold">❌ Ditolak Petugas</span>`
+                            : `<span class="px-3.5 py-1.5 rounded-xl bg-amber-100 text-amber-900 text-xs sm:text-sm font-extrabold">⏳ Menunggu Verifikasi Petugas</span>`;
+
+                    return `
+                    <div class="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3.5">
+                            <span class="px-3 py-2 rounded-xl bg-white border-2 border-blue-200 font-mono font-extrabold text-base text-[#1D4ED8]">${d.id}</span>
+                            <div>
+                                <div class="text-base font-extrabold text-slate-900">Setor ${Number(d.liters).toFixed(1).replace('.', ',')} Liter Minyak Jelantah</div>
+                                <div class="text-sm text-slate-600">${d.dropoff} &bull; ${d.createdAt}</div>
+                            </div>
+                        </div>
+                        <div>${badge}</div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function viewSoapVoucher(code) {
+            const v = state.soapVouchers.find(item => item.code === code);
+            if (!v) return;
+            openTicketCardModal({
+                badge: 'VOUCHER SABUN CUCI PIRING',
+                title: v.item,
+                subtitle: 'Tunjukkan kode ini kepada Petugas RT/RW di Posko.',
+                code: v.code,
+                detailsHtml: `
+                    <div><strong>Pemilik:</strong> ${v.residentName} (${v.rt})</div>
+                    <div><strong>Status:</strong> ${v.status === 'claimed' ? 'Sudah Diambil' : 'Belum Diambil (Siap Ditukar)'}</div>
+                `
+            });
+        }
+
+        function viewTrainingTicket(code) {
+            const t = state.seminarTickets.find(item => item.code === code);
+            if (!t) return;
+            openTicketCardModal({
+                badge: 'TIKET GRATIS PELATIHAN LILIN',
+                title: `Pelatihan Membuat Lilin (${t.productName})`,
+                subtitle: 'Tunjukkan kode tiket ini saat masuk ruang pelatihan di Balai RW Tembalang.',
+                code: t.code,
+                detailsHtml: `
+                    <div><strong>Nama Peserta:</strong> ${t.buyerName}</div>
+                    <div><strong>No. HP / WA:</strong> ${t.whatsapp}</div>
+                    <div><strong>Jadwal:</strong> ${t.session}</div>
+                `
+            });
+        }
+
+        // --- 4. TAMPILAN PETUGAS RT/RW ---
+        function renderAdminDashboard() {
+            const query = (document.getElementById('admin-search-code')?.value || '').trim().toUpperCase();
+            const pendingAll = state.deposits.filter(d => d.status === 'pending');
+            const pendingFiltered = pendingAll.filter(d =>
+                !query || d.id.includes(query) || d.residentName.toUpperCase().includes(query)
+            );
+
+            const totalLiters = getVerifiedLitersTotal();
+            document.getElementById('admin-kpi-pending').textContent = `${pendingAll.length} Setoran`;
+            document.getElementById('admin-kpi-liters').textContent = `${totalLiters.toFixed(1).replace('.', ',')} Liter`;
+            document.getElementById('admin-kpi-points').textContent = `${Math.round(totalLiters * 10)} Poin warga telah dicairkan`;
+            document.getElementById('admin-kpi-soap').textContent = `${state.soapStock} Botol`;
+
+            // Antrean Setoran Minyak
+            const queueEl = document.getElementById('admin-pending-queue');
+            if (pendingFiltered.length === 0) {
+                queueEl.innerHTML = `
+                    <div class="p-8 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 text-center">
+                        <p class="text-base font-bold text-slate-700">Tidak ada antrean setoran minyak yang menunggu.</p>
+                        <p class="text-sm text-slate-500 mt-1">Semua setoran warga sudah diperiksa.</p>
+                    </div>`;
+            } else {
+                queueEl.innerHTML = pendingFiltered.map(d => `
+                    <div class="p-5 rounded-2xl border-2 border-blue-200 bg-blue-50/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div class="px-4 py-3 rounded-2xl bg-[#1D4ED8] text-white font-mono font-extrabold text-2xl text-center shrink-0">
+                                ${d.id}
+                            </div>
+                            <div>
+                                <div class="text-lg font-extrabold text-slate-900">
+                                    ${d.residentName} <span class="text-sm font-bold text-[#1D4ED8]">(${d.rt})</span>
+                                </div>
+                                <div class="text-base font-bold text-slate-800 mt-0.5">
+                                    Jumlah: ${Number(d.liters).toFixed(1).replace('.', ',')} Liter &rarr; Akan mendapat +${d.points} Poin
+                                </div>
+                                <div class="text-sm text-slate-600 mt-0.5">
+                                    Lokasi: ${d.dropoff} &bull; ${d.createdAt}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3 shrink-0">
+                            <button type="button" onclick="handleVerifyDeposit('${d.id}')"
+                                class="flex-1 sm:flex-initial py-3.5 px-5 rounded-xl bg-[#1D4ED8] hover:bg-[#2563EB] active:scale-95 text-white font-extrabold text-sm sm:text-base shadow-sm cursor-pointer">
+                                ✅ TERIMA MINYAK &amp; TAMBAH POIN
+                            </button>
+                            <button type="button" onclick="handleRejectDeposit('${d.id}')"
+                                class="py-3.5 px-4 rounded-xl border-2 border-red-200 bg-white hover:bg-red-50 text-red-700 font-bold text-sm sm:text-base cursor-pointer">
+                                ❌ Tolak
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Daftar Penukaran Hadiah Sabun Warga
+            const voucherEl = document.getElementById('admin-soap-vouchers-list');
+            if (state.soapVouchers.length === 0) {
+                voucherEl.innerHTML = `<p class="text-sm text-slate-500">Belum ada warga yang menukar poin dengan sabun.</p>`;
+            } else {
+                voucherEl.innerHTML = state.soapVouchers.map(v => `
+                    <div class="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1.5 rounded-xl bg-white border-2 border-blue-200 font-mono font-extrabold text-base text-[#1D4ED8]">${v.code}</span>
+                            <div>
+                                <div class="text-base font-extrabold text-slate-900">${v.residentName} (${v.rt})</div>
+                                <div class="text-sm text-slate-600">${v.item}</div>
+                            </div>
+                        </div>
+                        ${v.status === 'ready'
+                            ? `<button type="button" onclick="handleMarkVoucherClaimed('${v.code}')" class="py-2.5 px-4 rounded-xl bg-[#1D4ED8] hover:bg-[#2563EB] text-white font-bold text-sm cursor-pointer">✅ Tandai Sabun Sudah Diserahkan</button>`
+                            : `<span class="px-3.5 py-1.5 rounded-xl bg-slate-200 text-slate-700 font-bold text-sm">Sudah Diserahkan</span>`
+                        }
+                    </div>
+                `).join('');
+            }
+
+            // Daftar Peserta Pelatihan Lilin
+            const tableEl = document.getElementById('admin-seminar-table');
+            tableEl.innerHTML = state.seminarTickets.map(t => `
+                <tr class="hover:bg-blue-50/40">
+                    <td class="py-3.5 px-4 font-mono font-extrabold text-[#1D4ED8]">${t.code}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">${t.buyerName}</td>
+                    <td class="py-3.5 px-4 text-slate-700">${t.whatsapp}</td>
+                    <td class="py-3.5 px-4 font-semibold text-slate-800">${t.productName}</td>
+                    <td class="py-3.5 px-4 text-slate-700">${t.session}</td>
+                </tr>
+            `).join('');
+        }
+
+        function handleVerifyDeposit(code) {
+            const dep = state.deposits.find(d => d.id === code);
+            if (!dep || dep.status !== 'pending') return;
+
+            dep.status = 'verified';
+            const res = state.residents.find(r => r.id === dep.residentId);
+            if (res) {
+                res.points += Number(dep.points);
+            }
+
+            saveState();
+            renderAll();
+            showToast(`Berhasil! Minyak kode ${code} diterima. +${dep.points} Poin sudah masuk ke akun ${dep.residentName}.`);
+        }
+
+        function handleRejectDeposit(code) {
+            const dep = state.deposits.find(d => d.id === code);
+            if (!dep || dep.status !== 'pending') return;
+
+            dep.status = 'rejected';
+            saveState();
+            renderAll();
+            showToast(`Setoran kode ${code} ditolak karena takaran atau minyak tidak sesuai.`, 'error');
+        }
+
+        function handleRestockSoap() {
+            state.soapStock += 10;
+            saveState();
+            renderAll();
+            showToast('Stok sabun cuci piring di posko berhasil ditambah +10 botol.');
+        }
+
+        function handleMarkVoucherClaimed(code) {
+            const v = state.soapVouchers.find(item => item.code === code);
+            if (!v || v.status === 'claimed') return;
+
+            v.status = 'claimed';
+            saveState();
+            renderAll();
+            showToast(`Voucher ${code} (${v.residentName}) ditandai sudah diserahkan.`);
+        }
+
+        // --- 5. POPUP & NOTIFIKASI RAMAH ---
+        function openTicketCardModal({ badge, title, subtitle, code, detailsHtml }) {
+            document.getElementById('modal-card-badge').textContent = badge;
+            document.getElementById('modal-card-title').textContent = title;
+            document.getElementById('modal-card-subtitle').textContent = subtitle;
+            document.getElementById('modal-card-code').textContent = code;
+            document.getElementById('modal-card-details').innerHTML = detailsHtml;
+
+            const modal = document.getElementById('modal-ticket-card');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function copyTextValue(text) {
+            const temp = document.createElement('input');
+            temp.value = text.trim();
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast(`Kode ${text.trim()} berhasil disalin!`);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const isError = type === 'error';
+
+            toast.className = `pointer-events-auto flex items-start gap-3 p-4 rounded-2xl shadow-xl border-2 text-sm sm:text-base font-bold animate-pop ${
+                isError
+                    ? 'bg-red-50 border-red-300 text-red-900'
+                    : 'bg-[#1D4ED8] border-blue-300 text-white'
+            }`;
+
+            toast.innerHTML = `
+                <span class="text-lg leading-none mt-0.5">${isError ? '⚠️' : '✅'}</span>
+                <span class="flex-1 leading-snug">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                toast.style.transition = 'all 0.25s ease';
+                setTimeout(() => toast.remove(), 250);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
